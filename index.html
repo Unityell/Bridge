@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=960 height=600 tabindex="0"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -23,12 +24,6 @@
         <div id="unity-build-title">Bridge</div>
       </div>
     </div>
-
-    <!-- Добавляем скрытое текстовое поле для клавиатуры -->
-    <input type="text" id="webglInput" 
-           style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; font-size: 24px; padding: 10px; z-index: 9999;" 
-           oninput="SendInputToUnity(this.value)" 
-           onblur="HideKeyboard()" />
 
     <script>
       var container = document.querySelector("#unity-container");
@@ -102,28 +97,6 @@
             };
 
       document.body.appendChild(script);
-
-      // Функции для клавиатуры
-      function ShowKeyboard(inputId) {
-          var input = document.getElementById('webglInput');
-          input.style.display = 'block';
-          input.focus();
-          input.value = "";
-          input.dataset.unityId = inputId; // сохраняем ID для отправки данных
-      }
-
-      function HideKeyboard() {
-          var input = document.getElementById('webglInput');
-          input.style.display = 'none';
-          input.blur();
-      }
-
-      function SendInputToUnity(value) {
-          var input = document.getElementById('webglInput');
-          if (window.unityInstance) {
-              window.unityInstance.SendMessage(input.dataset.unityId, 'SetInputText', value);
-          }
-      }
 
     </script>
   </body>
