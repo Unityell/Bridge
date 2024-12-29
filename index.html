@@ -26,7 +26,7 @@
 
     <!-- Добавляем скрытое текстовое поле для клавиатуры -->
     <input type="text" id="webglInput" 
-           style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;" 
+           style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; font-size: 24px; padding: 10px; z-index: 9999;" 
            oninput="SendInputToUnity(this.value)" 
            onblur="HideKeyboard()" />
 
