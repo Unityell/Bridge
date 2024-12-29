@@ -25,6 +25,9 @@
       </div>
     </div>
 
+    <!-- Добавляем скрытое поле для вызова клавиатуры -->
+    <input id="keyboardInput" type="text" style="position:fixed; z-index: -100;">
+
     <script>
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -91,6 +94,33 @@
 
                 // Сохраняем инстанс для Unity
                 window.unityInstance = unityInstance;
+
+                const keyboardInput = document.getElementById('keyboardInput');
+                window.showKeyboard = false;
+                let firstClick = false;
+
+                // Асинхронная обработка первого клика
+                canvas.addEventListener('click', async function acceptFirstClick() {
+                  if (firstClick) return;
+                  firstClick = true;
+
+                  while (true) {
+                    if (window.showKeyboard) {
+                      window.showKeyboard = false;
+                      keyboardInput.focus(); // Вызов клавиатуры
+                    }
+                    await new Promise(r => setTimeout(r, 400)); // Задержка
+                  }
+                });
+
+                // Обработка ввода текста
+                keyboardInput.addEventListener('input', function (e) {
+                  if (e.inputType === "deleteContentBackward") {
+                    unityInstance.SendMessage('LogInWidget', 'SetInputText', ''); // Backspace
+                  } else if (e.data) {
+                    unityInstance.SendMessage('LogInWidget', 'SetInputText', e.data);
+                  }
+                });
               }).catch((message) => {
                 alert(message);
               });
