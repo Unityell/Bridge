@@ -6,6 +6,20 @@
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    
+    <!-- Добавляем стиль для скрытия HTML-инпутов -->
+    <style>
+        input, textarea {
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+        }
+    </style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
