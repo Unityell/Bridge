@@ -6,21 +6,23 @@
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
-
+    
+    <!-- Стили для скрытия инпутов -->
     <style>
         input, textarea {
             position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            width: 1px !important;
+            height: 1px !important;
             opacity: 0 !important;
-            pointer-events: auto !important;
-            z-index: 9999 !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
 
-            autocomplete: on;
-            autocorrect: on;
-            spellcheck: true;
+            /* Отключаем автозаполнение и подсказки */
+            autocomplete: off;
+            autocorrect: off;
+            spellcheck: false;
             -webkit-user-modify: read-write-plaintext-only;
         }
     </style>
@@ -42,37 +44,35 @@
       </div>
     </div>
 
+    <!-- Добавляем JavaScript для отслеживания динамически создаваемых элементов -->
     <script>
+        // Наблюдаем за добавлением новых элементов
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(mutation => {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeName === 'INPUT' || node.nodeName === 'TEXTAREA') {
                         node.style.position = "absolute";
-                        node.style.left = "0";
-                        node.style.top = "0";
-                        node.style.width = "100%";
-                        node.style.height = "100%";
+                        node.style.left = "-9999px";
+                        node.style.top = "-9999px";
+                        node.style.width = "1px";
+                        node.style.height = "1px";
                         node.style.opacity = "0";
-                        node.style.pointerEvents = "auto";
-                        node.style.zIndex = "9999";
+                        node.style.pointerEvents = "none";
+                        node.style.zIndex = "-1";
 
-                        node.autocomplete = "on";
-                        node.autocorrect = "on";
-                        node.spellcheck = true;
-                        node.setAttribute("autocomplete", "on");
-                        node.setAttribute("autocorrect", "on");
-                        node.setAttribute("spellcheck", "true");
-
-                        node.addEventListener('focus', () => {
-                            node.style.opacity = "1";
-                        });
-                        node.addEventListener('blur', () => {
-                            node.style.opacity = "0";
-                        });
+                        // Отключаем автозаполнение и проверки
+                        node.autocomplete = "off";
+                        node.autocorrect = "off";
+                        node.spellcheck = false;
+                        node.setAttribute("autocomplete", "off");
+                        node.setAttribute("autocorrect", "off");
+                        node.setAttribute("spellcheck", "false");
                     }
                 });
             });
         });
+
+        // Наблюдаем за изменениями в body
         observer.observe(document.body, { childList: true, subtree: true });
     </script>
 
