@@ -7,16 +7,19 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-        /* Стили для скрытия инпутов */
+        /* Минимально видимый инпут для отображения автокоррекции */
         input {
             position: absolute !important;
-            left: -9999px !important;
-            top: -9999px !important;
+            left: 0 !important;
+            bottom: 0 !important;
             width: 1px !important;
             height: 1px !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            z-index: -1 !important;
+            border: none !important;
+            background: transparent !important;
+            color: transparent !important;
+            caret-color: black !important;
+            font-size: 16px !important;
+            z-index: 1 !important;
         }
     </style>
   </head>
@@ -38,7 +41,7 @@
     </div>
 
     <!-- Скрытое поле для текста -->
-    <input id="hiddenInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false">
+    <input id="hiddenInput" type="text" autocomplete="off" autocorrect="on" spellcheck="true">
 
     <script>
       // Настройка Unity WebGL
@@ -93,16 +96,6 @@
       });
       input.addEventListener('input', (e) => {
         console.log("Текст в поле:", e.target.value); // Логируем текст
-      });
-
-      // Подъем страницы при активации клавиатуры
-      window.addEventListener('resize', () => {
-        const isKeyboardOpen = window.innerHeight < screen.height * 0.7; // Проверяем, открыта ли клавиатура
-        if (isKeyboardOpen) {
-            document.body.style.paddingBottom = '150px'; // Добавляем отступ снизу
-        } else {
-            document.body.style.paddingBottom = '0'; // Возвращаем обратно
-        }
       });
 
       // Устанавливаем фокус при загрузке
