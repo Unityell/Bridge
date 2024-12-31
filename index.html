@@ -23,13 +23,17 @@
 
         #unity-container {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
 
         #unity-canvas {
-            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             background: #231F20;
         }
 
@@ -109,16 +113,17 @@
         let width = window.innerWidth;
         let height = window.innerHeight;
 
-        if (width / height > aspectRatio) {
-          // Растягиваем по высоте (увеличиваем ширину)
-          width = height * aspectRatio;
+        if (width / height < aspectRatio) {
+          // Масштабируем по высоте
+          canvas.style.width = height * aspectRatio + 'px';
+          canvas.style.height = height + 'px';
         } else {
-          // Растягиваем по ширине (увеличиваем высоту)
-          height = width / aspectRatio;
+          // Масштабируем по ширине
+          canvas.style.width = width + 'px';
+          canvas.style.height = width / aspectRatio + 'px';
         }
-
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
+        canvas.style.left = (window.innerWidth - parseFloat(canvas.style.width)) / 2 + 'px';
+        canvas.style.top = (window.innerHeight - parseFloat(canvas.style.height)) / 2 + 'px';
       }
 
       window.addEventListener('resize', resizeCanvas);
