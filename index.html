@@ -92,16 +92,20 @@
       // Управление скрытым полем
       const input = document.getElementById('hiddenInput');
       input.addEventListener('focusout', () => {
-        setTimeout(() => input.focus(), 100); // Перефокусируем, если потеряли фокус
+        setTimeout(() => input.blur(), 100); // Перефокусируем, если потеряли фокус
       });
       input.addEventListener('input', (e) => {
         console.log("Текст в поле:", e.target.value); // Логируем текст
       });
 
-      // Устанавливаем фокус при загрузке
-      window.addEventListener('load', () => {
+      // Явный вызов для отображения клавиатуры (из Unity)
+      function showKeyboard() {
         input.focus();
-      });
+      }
+
+      function hideKeyboard() {
+        input.blur();
+      }
     </script>
   </body>
 </html>
