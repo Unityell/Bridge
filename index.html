@@ -2,37 +2,39 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+
     <style>
-        /* Минимально видимый инпут для отображения автокоррекции */
-        input {
+        input, textarea {
             position: absolute !important;
             left: 0 !important;
-            bottom: 0 !important;
-            width: 1px !important;
-            height: 1px !important;
-            border: none !important;
-            background: transparent !important;
-            color: transparent !important;
-            caret-color: black !important;
-            font-size: 16px !important;
-            z-index: 1 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            opacity: 0 !important;
+            pointer-events: auto !important;
+            z-index: 9999 !important;
+
+            autocomplete: on;
+            autocorrect: on;
+            spellcheck: true;
+            -webkit-user-modify: read-write-plaintext-only;
         }
     </style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"></div>
+      <div id="unity-warning"> </div>
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
@@ -40,16 +42,65 @@
       </div>
     </div>
 
-    <!-- Скрытое поле для текста -->
-    <input id="hiddenInput" type="text" autocomplete="off" autocorrect="on" spellcheck="true">
+    <script>
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeName === 'INPUT' || node.nodeName === 'TEXTAREA') {
+                        node.style.position = "absolute";
+                        node.style.left = "0";
+                        node.style.top = "0";
+                        node.style.width = "100%";
+                        node.style.height = "100%";
+                        node.style.opacity = "0";
+                        node.style.pointerEvents = "auto";
+                        node.style.zIndex = "9999";
+
+                        node.autocomplete = "on";
+                        node.autocorrect = "on";
+                        node.spellcheck = true;
+                        node.setAttribute("autocomplete", "on");
+                        node.setAttribute("autocorrect", "on");
+                        node.setAttribute("spellcheck", "true");
+
+                        node.addEventListener('focus', () => {
+                            node.style.opacity = "1";
+                        });
+                        node.addEventListener('blur', () => {
+                            node.style.opacity = "0";
+                        });
+                    }
+                });
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    </script>
 
     <script>
-      // Настройка Unity WebGL
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
 
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/Build.loader.js";
@@ -61,9 +112,14 @@
         companyName: "DefaultCompany",
         productName: "Bridge",
         productVersion: "0.1.0",
+        showBanner: unityShowBanner,
       };
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
       } else {
@@ -78,34 +134,17 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
-        }).catch((message) => {
-          alert(message);
-        });
-      };
+              }).then((unityInstance) => {
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+              }).catch((message) => {
+                alert(message);
+              });
+            };
+
       document.body.appendChild(script);
-
-      // Управление скрытым полем
-      const input = document.getElementById('hiddenInput');
-      input.addEventListener('focusout', () => {
-        setTimeout(() => input.blur(), 100); // Перефокусируем, если потеряли фокус
-      });
-      input.addEventListener('input', (e) => {
-        console.log("Текст в поле:", e.target.value); // Логируем текст
-      });
-
-      // Явный вызов для отображения клавиатуры (из Unity)
-      function showKeyboard() {
-        input.focus();
-      }
-
-      function hideKeyboard() {
-        input.blur();
-      }
     </script>
   </body>
 </html>
