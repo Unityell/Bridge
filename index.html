@@ -109,12 +109,12 @@
         let width = window.innerWidth;
         let height = window.innerHeight;
 
-        if (width / height < aspectRatio) {
-          // Растягиваем по высоте
-          height = width / aspectRatio;
-        } else {
-          // Растягиваем по ширине
+        if (width / height > aspectRatio) {
+          // Растягиваем по высоте (увеличиваем ширину)
           width = height * aspectRatio;
+        } else {
+          // Растягиваем по ширине (увеличиваем высоту)
+          height = width / aspectRatio;
         }
 
         canvas.style.width = width + 'px';
