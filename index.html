@@ -8,18 +8,23 @@
     <link rel="stylesheet" href="TemplateData/style.css">
     
     <!-- Добавляем стиль для скрытия HTML-инпутов -->
-    <style>
-        input, textarea {
-            position: absolute !important;
-            left: -9999px !important;
-            top: -9999px !important;
-            width: 1px !important;
-            height: 1px !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            z-index: -1 !important;
-        }
-    </style>
+<style>
+    input, textarea {
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+        /* Отключаем автозаполнение и подсказки */
+        autocomplete: off;
+        autocorrect: off;
+        spellcheck: false;
+        -webkit-user-modify: read-write-plaintext-only;
+    }
+</style>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
