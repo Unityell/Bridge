@@ -97,10 +97,11 @@
 
       // Подъем страницы при активации клавиатуры
       window.addEventListener('resize', () => {
-        if (document.activeElement === input) {
-          document.body.style.transform = 'translateY(-150px)'; // Поднимаем
+        const isKeyboardOpen = window.innerHeight < screen.height * 0.7; // Проверяем, открыта ли клавиатура
+        if (isKeyboardOpen) {
+            document.body.style.paddingBottom = '150px'; // Добавляем отступ снизу
         } else {
-          document.body.style.transform = 'translateY(0)'; // Возвращаем обратно
+            document.body.style.paddingBottom = '0'; // Возвращаем обратно
         }
       });
 
