@@ -32,19 +32,6 @@
             background: #231F20;
         }
 
-        #orientation-warning {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 20px;
-            background: red;
-            padding: 10px;
-            display: none;
-            z-index: 9999;
-        }
-
         input, textarea {
             position: fixed !important;
             left: 0 !important;
@@ -76,7 +63,6 @@
         </div>
       </div>
       <div id="unity-warning"> </div>
-      <div id="orientation-warning">Пожалуйста, поверните устройство горизонтально.</div>
     </div>
 
     <script>
@@ -85,7 +71,6 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var warningBanner = document.querySelector("#unity-warning");
-      var orientationWarning = document.getElementById("orientation-warning");
 
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
@@ -118,7 +103,7 @@
         showBanner: unityShowBanner,
       };
 
-      function checkOrientation() {
+      function setCanvasSize() {
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
           canvas.style.width = "960px";
           canvas.style.height = "600px";
@@ -130,18 +115,10 @@
           container.style.width = "100%";
           container.style.height = "100%";
         }
-
-        if (window.innerHeight > window.innerWidth) {
-          orientationWarning.style.display = "block";
-          canvas.style.display = "none";
-        } else {
-          orientationWarning.style.display = "none";
-          canvas.style.display = "block";
-        }
       }
 
-      window.addEventListener('resize', checkOrientation);
-      checkOrientation();
+      window.addEventListener('resize', setCanvasSize);
+      setCanvasSize();
 
       loadingBar.style.display = "block";
 
