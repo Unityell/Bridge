@@ -23,6 +23,11 @@
             spellcheck: true;
             -webkit-user-modify: read-write-plaintext-only;
         }
+
+        body.shifted {
+            transform: translateY(-50px); /* Величина смещения при открытии клавиатуры */
+            transition: transform 0.2s ease-in-out;
+        }
     </style>
   </head>
   <body>
@@ -65,9 +70,11 @@
 
                         node.addEventListener('focus', () => {
                             node.style.opacity = "1";
+                            document.body.classList.add('shifted');
                         });
                         node.addEventListener('blur', () => {
                             node.style.opacity = "0";
+                            document.body.classList.remove('shifted');
                         });
                     }
                 });
