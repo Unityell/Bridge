@@ -104,12 +104,14 @@
       };
 
       function setCanvasSize() {
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+          // Мобильные устройства — фиксированный размер
           canvas.style.width = "960px";
           canvas.style.height = "600px";
           container.style.width = "960px";
           container.style.height = "600px";
         } else {
+          // ПК — растягивание на весь экран
           canvas.style.width = "100%";
           canvas.style.height = "100%";
           container.style.width = "100%";
