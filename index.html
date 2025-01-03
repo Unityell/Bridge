@@ -136,16 +136,16 @@
 
       document.body.appendChild(script);
 
-      // Scroll handling for iOS input focus
+      // Adjust viewport for iOS keyboard
       window.addEventListener('focusin', () => {
         setTimeout(() => {
-          document.body.scrollTop = document.body.scrollHeight;
+          document.querySelector('#unity-container').style.height = window.innerHeight + 'px';
         }, 300);
       });
 
       window.addEventListener('focusout', () => {
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          document.querySelector('#unity-container').style.height = '100%';
         }, 300);
       });
     </script>
