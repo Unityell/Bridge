@@ -3,121 +3,78 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta 
-      name="viewport" 
-      content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
 
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -webkit-text-size-adjust: none;
-        -webkit-tap-highlight-color: transparent;
-      }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-text-size-adjust: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-      #unity-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-      }
+        #unity-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-      #unity-canvas {
-        position: absolute;
-        background: #231F20;
-      }
+        #unity-canvas {
+            position: absolute;
+            background: #231F20;
+        }
 
-      input, textarea {
-        position: fixed !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        width: 100% !important;
-        height: 40px !important;
-        opacity: 0 !important;
-        pointer-events: auto !important;
-        z-index: 9999 !important;
+        /* Поле ввода */
+        input, textarea {
+            position: fixed !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 40px !important;
+            opacity: 0 !important;
+            pointer-events: auto !important;
+            z-index: 9999 !important;
 
-        /* Подсказки и автозамена */
-        autocomplete: on;
-        autocorrect: on;
-        spellcheck: true;
-        -webkit-user-modify: read-write-plaintext-only;
-      }
+            autocomplete: on;
+            autocorrect: on;
+            spellcheck: true;
+            -webkit-user-modify: read-write-plaintext-only;
+        }
 
-      #unity-footer, #unity-fullscreen-button {
-        display: none !important;
-      }
-
-      /* Пример баннера предупреждений */
-      #unity-warning {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 999999;
-        display: none;
-      }
-      #unity-warning div {
-        color: #000;
-        font-weight: bold;
-      }
-
-      /* Пример стилей для прогресс-бара, если он остался */
-      #unity-loading-bar {
-        display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 250px;
-        height: 20px;
-        background-color: #555;
-      }
-      #unity-logo {
-        margin-bottom: 10px;
-        text-align: center;
-      }
-      #unity-progress-bar-empty {
-        width: 100%;
-        height: 20px;
-        background-color: #ccc;
-      }
-      #unity-progress-bar-full {
-        width: 0%;
-        height: 100%;
-        background-color: #4af;
-      }
+        #unity-footer, #unity-fullscreen-button {
+            display: none !important;
+        }
     </style>
   </head>
   <body>
     <div id="unity-container">
+      <!-- Canvas, где рендерится Unity -->
       <canvas id="unity-canvas" tabindex="-1"></canvas>
-
-      <!-- Прогресс-бар, если хотите оставить -->
+      
+      <!-- Блок прогресс-бара, включающий логотип Unity -->
       <div id="unity-loading-bar">
-        <div id="unity-logo">
-          <!-- Логотип, если нужно -->
-          <img src="TemplateData/UnityLogo.png" alt="Unity Logo" />
-        </div>
+        <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
 
+      <!-- Баннер для предупреждений/ошибок -->
       <div id="unity-warning"></div>
     </div>
 
     <script>
-      // Функция определения iOS
+      // Определение iOS (упрощённый вариант)
       function isIOS() {
         return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
       }
@@ -135,10 +92,10 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type === 'error') {
+        if (type == 'error') {
           div.style = 'background: red; padding: 10px;';
         } else {
-          if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
           setTimeout(function() {
             if (warningBanner.contains(div)) {
               warningBanner.removeChild(div);
@@ -162,11 +119,13 @@
         showBanner: unityShowBanner,
       };
 
+      // Функция подстройки Canvas под высоту экрана
       function resizeCanvas() {
         let width = window.innerWidth;
         let height = window.innerHeight;
 
-        const aspectRatio = 960 / 600;
+        const aspectRatio = 960 / 600; // Исходное соотношение сторон
+
         canvas.style.height = height + 'px';
         canvas.style.width = (height * aspectRatio) + 'px';
 
@@ -175,25 +134,31 @@
         canvas.style.top = '0';
       }
 
+      // При изменении размера окна - пересчитываем Canvas
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
+      // Показываем прогресс-бар перед загрузкой
       loadingBar.style.display = "block";
 
+      // Динамически подключаем loader
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
+        // Создаём Unity-экземпляр
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+          progressBarFull.style.width = (100 * progress) + "%";
         }).then((unityInstance) => {
-          loadingBar.style.display = "none";
+          loadingBar.style.display = "none"; // Убираем прогресс-бар
         }).catch((message) => {
           alert(message);
         });
       };
       document.body.appendChild(script);
 
-      // --- Логика для появления/исчезновения клавиатуры ---
+      // -----------------------------
+      // ЛОГИКА СДВИГА ЭКРАНА ПРИ ФОКУСЕ
+      // -----------------------------
       let initialScrollY = 0;
 
       window.addEventListener('focusin', () => {
@@ -201,15 +166,14 @@
         initialScrollY = window.scrollY;
 
         if (isIOS()) {
-          // 1. Добавляем отступ снизу
+          // iOS: добавляем отступ снизу, чтобы было куда «сдвигать»
           document.body.style.paddingBottom = '300px';
-
-          // 2. Через задержку поднимаем страницу
+          // Спустя 300 мс (клавиатура уже открылась) можно прокрутить
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
           }, 300);
         } else {
-          // Старая логика для не iOS
+          // Не iOS: старый костыль, сдвигаем вверх на 200 пикселей
           setTimeout(() => {
             window.scrollTo(0, initialScrollY - 200);
           }, 300);
@@ -218,15 +182,13 @@
 
       window.addEventListener('focusout', () => {
         if (isIOS()) {
-          // Убираем отступ на iOS
+          // iOS: убираем отступ, возвращаем скролл
           document.body.style.paddingBottom = '';
-
-          // Возвращаем позицию после закрытия клавиатуры
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
           }, 300);
         } else {
-          // Старый метод
+          // Не iOS: возвращаем позицию
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
           }, 300);
