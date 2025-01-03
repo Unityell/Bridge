@@ -3,71 +3,128 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <meta 
+      name="viewport" 
+      content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes"
+    >
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
 
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -webkit-text-size-adjust: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -webkit-text-size-adjust: none;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-        #unity-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+      #unity-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
 
-        #unity-canvas {
-            position: absolute;
-            background: #231F20;
-        }
+      #unity-canvas {
+        position: absolute;
+        background: #231F20;
+      }
 
-        input, textarea {
-            position: fixed !important;
-            left: 0 !important;
-            bottom: 0 !important;
-            width: 100% !important;
-            height: 40px !important;
-            opacity: 0 !important;
-            pointer-events: auto !important;
-            z-index: 9999 !important;
+      input, textarea {
+        position: fixed !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 40px !important;
+        opacity: 0 !important;
+        pointer-events: auto !important;
+        z-index: 9999 !important;
 
-            autocomplete: on;
-            autocorrect: on;
-            spellcheck: true;
-            -webkit-user-modify: read-write-plaintext-only;
-        }
+        /* Подсказки и автозамена */
+        autocomplete: on;
+        autocorrect: on;
+        spellcheck: true;
+        -webkit-user-modify: read-write-plaintext-only;
+      }
 
-        #unity-footer, #unity-fullscreen-button {
-            display: none !important;
-        }
+      #unity-footer, #unity-fullscreen-button {
+        display: none !important;
+      }
+
+      /* Пример баннера предупреждений */
+      #unity-warning {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999999;
+        display: none;
+      }
+
+      #unity-warning div {
+        color: #000;
+        font-weight: bold;
+      }
+
+      #unity-loading-bar {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 20px;
+        background-color: #555;
+      }
+
+      #unity-logo {
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      #unity-progress-bar-empty {
+        width: 100%;
+        height: 20px;
+        background-color: #ccc;
+      }
+
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background-color: #4af;
+      }
     </style>
   </head>
   <body>
     <div id="unity-container">
       <canvas id="unity-canvas" tabindex="-1"></canvas>
+
       <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
+        <div id="unity-logo">
+          <!-- Логотип Unity, если нужно -->
+          <img src="TemplateData/UnityLogo.png" alt="Unity Logo" />
+        </div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
+
+      <div id="unity-warning"></div>
     </div>
 
     <script>
+      // Функция определения iOS
+      function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      }
+
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
@@ -81,12 +138,15 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
+        if (type == 'error') {
+          div.style = 'background: red; padding: 10px;';
+        } else {
           if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
           setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
+            if (warningBanner.contains(div)) {
+              warningBanner.removeChild(div);
+              updateBannerVisibility();
+            }
           }, 5000);
         }
         updateBannerVisibility();
@@ -110,10 +170,13 @@
         let height = window.innerHeight;
 
         const aspectRatio = 960 / 600;
+        // Старая логика: привязываемся к высоте
+        // и меняем ширину canvas пропорционально.
         canvas.style.height = height + 'px';
-        canvas.style.width = height * aspectRatio + 'px';
+        canvas.style.width = (height * aspectRatio) + 'px';
 
-        canvas.style.left = (window.innerWidth - parseFloat(canvas.style.width)) / 2 + 'px';
+        // Центрируем canvas по горизонтали
+        canvas.style.left = (width - parseFloat(canvas.style.width)) / 2 + 'px';
         canvas.style.top = '0';
       }
 
@@ -127,28 +190,52 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-              }).catch((message) => {
-                alert(message);
-              });
-            };
-
+        }).then((unityInstance) => {
+          loadingBar.style.display = "none";
+        }).catch((message) => {
+          alert(message);
+        });
+      };
       document.body.appendChild(script);
 
-      // Adjust viewport for iOS keyboard
+      // --- Фокус/Смещение экрана для iOS / других устройств ---
       let initialScrollY = 0;
+
       window.addEventListener('focusin', () => {
-        initialScrollY = window.scrollY;
-        setTimeout(() => {
-          window.scrollTo(0, initialScrollY - 200); // Adjust to move screen up
-        }, 300);
+        if (!isIOS()) {
+          // Старая логика (не iOS)
+          initialScrollY = window.scrollY;
+          setTimeout(() => {
+            window.scrollTo(0, initialScrollY - 200);
+          }, 300);
+        } else {
+          // iOS: Добавляем отступ, чтобы «поднять» Canvas
+          // Подстройте 300px под ваш дизайн, иногда нужно больше/меньше.
+          document.body.style.paddingBottom = '300px';
+
+          // Запоминаем позицию, но в iOS часто window.scrollY=0,
+          // поэтому можем просто оставить как есть или фиксировать scrollTop контейнера
+          initialScrollY = window.scrollY; 
+          // Вызвать прокрутку чуть позже, чтобы iOS успел отобразить клавиатуру.
+          setTimeout(() => {
+            window.scrollTo(0, initialScrollY);
+          }, 300);
+        }
       });
 
       window.addEventListener('focusout', () => {
-        setTimeout(() => {
-          window.scrollTo(0, initialScrollY); // Reset back to initial position
-        }, 300);
+        if (!isIOS()) {
+          // Старая логика (не iOS)
+          setTimeout(() => {
+            window.scrollTo(0, initialScrollY);
+          }, 300);
+        } else {
+          // Убираем отступ, возвращаем всё назад
+          document.body.style.paddingBottom = '';
+          setTimeout(() => {
+            window.scrollTo(0, initialScrollY);
+          }, 300);
+        }
       });
     </script>
   </body>
