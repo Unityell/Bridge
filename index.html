@@ -111,18 +111,13 @@
 
         const aspectRatio = 960 / 600; // Исходное соотношение сторон
 
-        if (width / height > aspectRatio) {
-          // Подгоняем по высоте
-          canvas.style.width = height * aspectRatio + 'px';
-          canvas.style.height = height + 'px';
-        } else {
-          // Подгоняем по ширине
-          canvas.style.width = width + 'px';
-          canvas.style.height = width / aspectRatio + 'px';
-        }
+        // Высота всегда заполняет экран
+        canvas.style.height = height + 'px';
+        canvas.style.width = height * aspectRatio + 'px';
 
+        // Центрирование по горизонтали
         canvas.style.left = (window.innerWidth - parseFloat(canvas.style.width)) / 2 + 'px';
-        canvas.style.top = (window.innerHeight - parseFloat(canvas.style.height)) / 2 + 'px';
+        canvas.style.top = '0';
       }
 
       window.addEventListener('resize', resizeCanvas);
