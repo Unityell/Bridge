@@ -5,8 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta 
       name="viewport" 
-      content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes"
-    >
+      content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
     <title>Unity WebGL Player | Bridge</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
@@ -34,7 +33,7 @@
 
       #unity-canvas {
         position: absolute;
-        background: #231F20; /* Чёрный/тёмный фон вместо прелоадера */
+        background: #231F20;
       }
 
       input, textarea {
@@ -54,7 +53,6 @@
         -webkit-user-modify: read-write-plaintext-only;
       }
 
-      /* Скрываем любые футеры / кнопки, если были */
       #unity-footer, #unity-fullscreen-button {
         display: none !important;
       }
@@ -72,31 +70,64 @@
         color: #000;
         font-weight: bold;
       }
+
+      /* Пример стилей для прогресс-бара, если он остался */
+      #unity-loading-bar {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 20px;
+        background-color: #555;
+      }
+      #unity-logo {
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      #unity-progress-bar-empty {
+        width: 100%;
+        height: 20px;
+        background-color: #ccc;
+      }
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background-color: #4af;
+      }
     </style>
   </head>
   <body>
-    <!-- Контейнер -->
     <div id="unity-container">
-      <!-- Unity Canvas (тёмный фон при загрузке) -->
       <canvas id="unity-canvas" tabindex="-1"></canvas>
 
-      <!-- Убрали блок с прелоадером и логотипом -->
+      <!-- Прогресс-бар, если хотите оставить -->
+      <div id="unity-loading-bar">
+        <div id="unity-logo">
+          <!-- Логотип, если нужно -->
+          <img src="TemplateData/UnityLogo.png" alt="Unity Logo" />
+        </div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
 
-      <!-- Блок предупреждений, если Unity захочет что-то вывести -->
       <div id="unity-warning"></div>
     </div>
 
     <script>
       // Функция определения iOS
       function isIOS() {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
       }
 
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var warningBanner = document.querySelector("#unity-warning");
 
-      // Если нужно выводить баннеры, иначе можно убрать целиком
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
           warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
@@ -104,10 +135,10 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') {
+        if (type === 'error') {
           div.style = 'background: red; padding: 10px;';
         } else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
           setTimeout(function() {
             if (warningBanner.contains(div)) {
               warningBanner.removeChild(div);
@@ -136,7 +167,6 @@
         let height = window.innerHeight;
 
         const aspectRatio = 960 / 600;
-        // Пропорционально высоте
         canvas.style.height = height + 'px';
         canvas.style.width = (height * aspectRatio) + 'px';
 
@@ -148,50 +178,55 @@
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
-      // Создаём Unity после загрузки скрипта
+      loadingBar.style.display = "block";
+
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          // Если захотите отследить прогресс — можно тут
-          // Сейчас убрали визуальный прогресс-бар
+          progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
-          // Когда всё загружено, можно убрать, например, какой-то экран "Загружается..."
-          // Но сейчас у нас просто canvas чёрного цвета
+          loadingBar.style.display = "none";
         }).catch((message) => {
           alert(message);
         });
       };
       document.body.appendChild(script);
 
-      // --- Фокус/Смещение экрана для iOS / других устройств ---
+      // --- Логика для появления/исчезновения клавиатуры ---
       let initialScrollY = 0;
 
       window.addEventListener('focusin', () => {
-        if (!isIOS()) {
-          // Старый способ прокрутки на не iOS
-          initialScrollY = window.scrollY;
-          setTimeout(() => {
-            window.scrollTo(0, initialScrollY - 200);
-          }, 300);
-        } else {
-          // iOS костыль: добавляем снизу отступ
+        // Запоминаем текущую позицию
+        initialScrollY = window.scrollY;
+
+        if (isIOS()) {
+          // 1. Добавляем отступ снизу
           document.body.style.paddingBottom = '300px';
-          initialScrollY = window.scrollY;
+
+          // 2. Через задержку поднимаем страницу
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
+          }, 300);
+        } else {
+          // Старая логика для не iOS
+          setTimeout(() => {
+            window.scrollTo(0, initialScrollY - 200);
           }, 300);
         }
       });
 
       window.addEventListener('focusout', () => {
-        if (!isIOS()) {
+        if (isIOS()) {
+          // Убираем отступ на iOS
+          document.body.style.paddingBottom = '';
+
+          // Возвращаем позицию после закрытия клавиатуры
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
           }, 300);
         } else {
-          // Убираем отступ
-          document.body.style.paddingBottom = '';
+          // Старый метод
           setTimeout(() => {
             window.scrollTo(0, initialScrollY);
           }, 300);
