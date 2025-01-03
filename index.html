@@ -137,15 +137,17 @@
       document.body.appendChild(script);
 
       // Adjust viewport for iOS keyboard
+      let initialScrollY = 0;
       window.addEventListener('focusin', () => {
+        initialScrollY = window.scrollY;
         setTimeout(() => {
-          document.querySelector('#unity-container').style.height = window.innerHeight + 'px';
+          window.scrollTo(0, initialScrollY - 200); // Adjust to move screen up
         }, 300);
       });
 
       window.addEventListener('focusout', () => {
         setTimeout(() => {
-          document.querySelector('#unity-container').style.height = '100%';
+          window.scrollTo(0, initialScrollY); // Reset back to initial position
         }, 300);
       });
     </script>
